@@ -1,6 +1,5 @@
 // Récupérer l'id de la page de l'URL
 const idUrl = window.location.search;
-console.log(idUrl);
 
 // Créer une variable pour récupérer seulement le ID sans ?
 let words = idUrl.split("=");
@@ -30,6 +29,17 @@ const buildHtml = (element) => {
 
     let htmlDescription = document.getElementById("description");
     htmlDescription.innerHTML = element.description;
+
+    let htmlSelect = document.getElementById("colors");
+    console.log(htmlSelect);
+    console.log(element.colors);
+
+    element.colors.forEach((color) => {
+        let optionColors = document.createElement("option");
+        optionColors.innerHTML = `${color}`;
+
+        htmlSelect.appendChild(optionColors);
+    });
 };
 
 // Maintenant que l'association-effectué => Associer les elements du tableau à l'HTML
