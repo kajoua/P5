@@ -8,6 +8,7 @@ function getPanier() {
         return JSON.parse(panier);
     }
 }
+
 const numberItemsPanier = panier.length;
 for (let i = 0; i < numberItemsPanier; i++) {
     let htmlPanier = `<article class="cart__item" data-id="${panier[i]._id}" data-color="{${panier[i].color}">
@@ -39,18 +40,20 @@ function savePanier(panier) {
     localStorage.setItem("panier", JSON.stringify(panier));
 }
 
-const itemQuantity = 1;
-for (let q = 0; q < itemQuantity; q++) {
-    const totalQuantity = numberItemsPanier * panier[q].quantity;
-    let htmlQuantity = document.getElementById("totalQuantity");
-    htmlQuantity.innerHTML = totalQuantity;
-}
-const itemPrice = 1;
-for (let q = 0; q < itemPrice; q++) {
-    const totalPrice = numberItemsPanier * panier[q].price;
-    let htmlPrice = document.getElementById("totalPrice");
-    htmlPrice.innerHTML = totalPrice;
-}
+// const itemQuantity = panier.length;
+
+// for (let q = 0; q < itemQuantity; q++) {
+//     const totalQuantity = numberItemsPanier * panier[q].quantity;
+
+//     htmlQuantity.innerHTML = totalQuantity;
+// }
+
+// const itemPrice = 1;
+// for (let q = 0; q < itemPrice; q++) {
+//     const totalPrice = numberItemsPanier * panier[q].price;
+//     let htmlPrice = document.getElementById("totalPrice");
+//     htmlPrice.innerHTML = totalPrice;
+// }
 
 // let htmlDelete = document.getElementById("deleteItem");
 
@@ -88,3 +91,31 @@ function changeQuantity(product, quantity) {
         }
     }
 }
+
+// FORMULAIRE
+
+document
+    .querySelector(".cart__order__form")
+    .addEventListener("submit", function(e) {
+        e.preventDefault();
+        let panier = getPanier();
+        if (panier == null) {
+            alert("Veuillez choisir des produits");
+        } else {
+            const customer = {
+                fistName: document.getElementById("firstName").value,
+                lastName: document.getElementById("lastName").value,
+                address: document.getElementById("address").value,
+                city: document.getElementById("city").value,
+                email: document.getElementById("email").value,
+            };
+            console.log(document.getElementById("email").value);
+            const customerPush = localStorage.setItem(
+                "customer",
+                JSON.stringify(customer)
+            );
+            customerPush;
+            alert("Formulaire envoyé");
+            document.location.href = "../html/confirmation.html";
+        }
+    });

@@ -68,6 +68,7 @@ function addPanier(product, color, quantity) {
         foundProduct.quantity += quantity;
     } else {
         product.quantity = quantity;
+        quantity += updateQuantity;
         product.color = color;
         panier.push(product);
     }
@@ -87,7 +88,6 @@ let color = "";
 
 var quantity = document.getElementById("quantity");
 quantity.addEventListener("change", (e) => {
-    updateQuantity = e.target.value;
+    updateQuantity = parseInt(document.getElementById("quantity").value);
 });
-
 let updateQuantity = "";
