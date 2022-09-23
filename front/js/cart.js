@@ -11,86 +11,126 @@ function getPanier() {
 
 const numberItemsPanier = panier.length;
 for (let i = 0; i < numberItemsPanier; i++) {
-    let htmlPanier = `<article class="cart__item" data-id="${panier[i]._id}" data-color="{${panier[i].color}">
-    <div class="cart__item__img">
-      <img src="${panier[i].imageUrl}" alt="${panier[i].altTxt}">
-    </div>
-    <div class="cart__item__content">
-      <div class="cart__item__content__description">
-        <h2>${panier[i].name}</h2>
-        <p>${panier[i].color}</p>
-        <p>${panier[i].price}€</p>
-      </div>
-      <div class="cart__item__content__settings">
-        <div class="cart__item__content__settings__quantity">
-          <p>Qté : </p>
-          <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${panier[i].quantity}">
-        </div>
-        <div class="cart__item__content__settings__delete">
-          <p class="deleteItem">Supprimer</p>
-        </div>
-      </div>
-    </div>
-  </article>`;
+    const htmlLignePanier = () => {
+        let cartItemSection = document.getElementById("cart__items");
+        let article = document.createElement("article");
+        article.classList = "cart__item";
+        article.dataset.id = panier[i]._id;
+        article.dataset.color = panier[i].color;
 
-    document.getElementById("cart__items").innerHTML += htmlPanier;
+        let cartItemImg = document.createElement("div");
+        cartItemImg.classList = "cart__item__img";
+
+        let image = document.createElement("img");
+        image.src = panier[i].imageUrl;
+        image.alt = panier[i].altTxt;
+
+        let cartItemContent = document.createElement("div");
+        cartItemContent.classList = "cart__item__content";
+
+        let cartItemContentDescription = document.createElement("div");
+        cartItemContentDescription.classList = "cart__item__content__description";
+        let nameDescription = document.createElement("h2");
+        nameDescription.textContent = panier[i].name;
+        let colorDescription = document.createElement("p");
+        colorDescription.textContent = panier[i].color;
+        let priceDescription = document.createElement("p");
+        priceDescription.textContent = panier[i].price + "€";
+
+        let cartItemContentSettings = document.createElement("div");
+        cartItemContentSettings.classList = "cart__item__content__settings";
+        let cartItemContentSettingsQuantity = document.createElement("div");
+        cartItemContentSettingsQuantity.classList =
+            "cart__item__content__settings__quantity";
+        let pQuantity = document.createElement("p");
+        pQuantity.textContent = "Qté :";
+        let inputQuantity = document.createElement("input");
+        inputQuantity.type = "number";
+        inputQuantity.classList = "itemQuantity";
+        inputQuantity.name = "itemQuantity";
+        inputQuantity.min = "1";
+        inputQuantity.max = "100";
+        inputQuantity.value = panier[i].quantity;
+
+        let cartItemContentSettingsDelete = document.createElement("div");
+        cartItemContentSettingsDelete.classList =
+            "cart__item__content__settings__delete";
+        let pDelete = document.createElement("p");
+        pDelete.classList = "deleteItem";
+        pDelete.textContent = " Supprimer";
+
+        cartItemSection.appendChild(article);
+        article.appendChild(cartItemImg);
+        cartItemImg.appendChild(image);
+        article.appendChild(cartItemContent);
+        cartItemContent.appendChild(cartItemContentDescription);
+        cartItemContentDescription.appendChild(nameDescription);
+        cartItemContentDescription.appendChild(colorDescription);
+        cartItemContentDescription.appendChild(priceDescription);
+        cartItemContent.appendChild(cartItemContentSettings);
+        cartItemContentSettings.appendChild(cartItemContentSettingsQuantity);
+        cartItemContentSettingsQuantity.appendChild(pQuantity);
+        cartItemContentSettingsQuantity.appendChild(inputQuantity);
+        cartItemContentSettings.appendChild(cartItemContentSettingsDelete);
+        cartItemContentSettingsDelete.appendChild(pDelete);
+    };
+    htmlLignePanier();
+
+    let cartItems = document.getElementsByTagName("article");
+    let cartLastChild = cartItems[cartItems.length - 1];
+    cartLastChild.querySelector(".deleteItem").addEventListener("click", (e) => {
+        e.preventDefault();
+        panier = panier.filter(
+            (c) => c._id != panier[i]._id || c.color != panier[i].color
+        );
+        savePanier(panier);
+    });
+
+    let newQuantity = cartLastChild
+        .querySelector(".itemQuantity")
+        .addEventListener("click", (e) => {
+            e.preventDefault();
+            let changeQuantity = e.target.value;
+            console.log(changeQuantity);
+            panier = panier.filter(
+                (e) =>
+                (e.quantity =
+                    changeQuantity ||
+                    e.id != panier[i]._id ||
+                    e.color != panier[i].color)
+            );
+
+            savePanier(panier);
+        });
+    newQuantity;
 }
 
 function savePanier(panier) {
     localStorage.setItem("panier", JSON.stringify(panier));
 }
 
-// const itemQuantity = panier.length;
-
-// for (let q = 0; q < itemQuantity; q++) {
-//     const totalQuantity = numberItemsPanier * panier[q].quantity;
-
-//     htmlQuantity.innerHTML = totalQuantity;
-// }
-
-// const itemPrice = 1;
-// for (let q = 0; q < itemPrice; q++) {
-//     const totalPrice = numberItemsPanier * panier[q].price;
-//     let htmlPrice = document.getElementById("totalPrice");
-//     htmlPrice.innerHTML = totalPrice;
-// }
-
-// let htmlDelete = document.getElementById("deleteItem");
-
-// element.colors.forEach((color) => {
-//     let optionColors = document.createElement("option");
-//     optionColors.innerHTML = `${color}`;
-
-//     htmlSelect.appendChild(optionColors);
-// });
-// htmlDelete;
-// //deleteItem.addEventListener("click", buttonSupprimer);
-
-// // function buttonSupprimer() {
-// //     let buttonDelete = document.createElement("button");
-// //     buttonDelete.appendChild.(".deleteItem");
-// //     window.localStorage.removeFromPanier("product");
-// // }
-// // buttonSupprimer();
-
-function removeFromPanier(product) {
+function totalQuantity() {
     let panier = getPanier();
-    panier = panier.filter((p) => p.id != product.id);
-    savePanier(panier);
-}
-
-function changeQuantity(product, quantity) {
-    let panier = getPanier();
-    panier = panier.filter((p) => p.id != product.id);
-    if (foundProduct != undefined) {
-        foundProduct.quantity += quantity;
-        if (foundProduct.quantity >= 0) {
-            removeFromPanier(foundProduct);
-        } else {
-            savePanier(panier);
-        }
+    let number = 0;
+    for (let q of panier) {
+        number += q.quantity;
     }
+    return number;
 }
+
+let htmlTotalQuantity = document.getElementById("totalQuantity");
+htmlTotalQuantity.innerHTML += totalQuantity();
+
+function totalPrice() {
+    let panier = getPanier();
+    let price = 0;
+    for (let p of panier) {
+        price += p.quantity * p.price;
+    }
+    return price;
+}
+let htmlTotalPrice = document.getElementById("totalPrice");
+htmlTotalPrice.innerHTML += totalPrice();
 
 // FORMULAIRE
 
@@ -98,23 +138,23 @@ document
     .querySelector(".cart__order__form")
     .addEventListener("submit", function(e) {
         e.preventDefault();
-        let panier = getPanier();
-        if (panier == null) {
-            alert("Veuillez choisir des produits");
+        if (panier === null) {
+            console.log(panier);
+            alert("je suis vide");
         } else {
-            const customer = {
+            const contact = {
                 fistName: document.getElementById("firstName").value,
                 lastName: document.getElementById("lastName").value,
                 address: document.getElementById("address").value,
                 city: document.getElementById("city").value,
                 email: document.getElementById("email").value,
             };
-            console.log(document.getElementById("email").value);
-            const customerPush = localStorage.setItem(
-                "customer",
-                JSON.stringify(customer)
+
+            const contactPush = localStorage.setItem(
+                "contact",
+                JSON.stringify(contact)
             );
-            customerPush;
+            contactPush;
             alert("Formulaire envoyé");
             document.location.href = "../html/confirmation.html";
         }

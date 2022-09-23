@@ -1,11 +1,11 @@
-let customerElement = getCustomer();
+let contactElement = getCustomer();
 
-function getCustomer() {
-    let customer = localStorage.getItem("customer");
-    if (customer == null) {
+function getCcontact() {
+    let contact = localStorage.getItem("contact");
+    if (contact == null) {
         return [];
     } else {
-        return JSON.parse(customer);
+        return JSON.parse(contact);
     }
 }
 
