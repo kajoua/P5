@@ -138,24 +138,31 @@ document
     .querySelector(".cart__order__form")
     .addEventListener("submit", function(e) {
         e.preventDefault();
-        if (panier === null) {
-            console.log(panier);
-            alert("je suis vide");
+        if (panier == 0) {
+            panier;
+            alert("Veuillez remplir votre panier");
         } else {
-            const contact = {
-                fistName: document.getElementById("firstName").value,
-                lastName: document.getElementById("lastName").value,
-                address: document.getElementById("address").value,
-                city: document.getElementById("city").value,
-                email: document.getElementById("email").value,
+            let panier = getPanier();
+            let productId = [];
+            panier.forEach((element) => {
+                productId.push(element._id);
+            });
+            const contactProducts = {
+                contact: {
+                    fistName: document.getElementById("firstName").value,
+                    lastName: document.getElementById("lastName").value,
+                    address: document.getElementById("address").value,
+                    city: document.getElementById("city").value,
+                    email: document.getElementById("email").value,
+                },
+                products: productId,
             };
 
-            const contactPush = localStorage.setItem(
-                "contact",
-                JSON.stringify(contact)
-            );
-            contactPush;
-            alert("Formulaire envoyé");
-            document.location.href = "../html/confirmation.html";
+            fetch("http://localhost:3000/api/products/order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(contactProducts),
+            });
+            // document.location.href = "../html/confirmation.html";
         }
     });
