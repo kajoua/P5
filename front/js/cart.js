@@ -1,4 +1,6 @@
 let panier = getPanier();
+let priceTotal = totalPrice();
+let panierConfirmation = getPanierConfirmation();
 
 function getPanier() {
     let panier = localStorage.getItem("panier");
@@ -9,6 +11,18 @@ function getPanier() {
     }
 }
 
+function savePanier(panierConfirmation) {
+    localStorage.setItem("commande", JSON.stringify(panierConfirmation));
+}
+
+function getPanierConfirmation() {
+    let panierConfirmation = localStorage.getItem("commande");
+    if (panierConfirmation == null) {
+        return [];
+    } else {
+        return JSON.parse(panierConfirmation);
+    }
+}
 const numberItemsPanier = panier.length;
 for (let i = 0; i < numberItemsPanier; i++) {
     const htmlLignePanier = () => {
@@ -91,7 +105,7 @@ for (let i = 0; i < numberItemsPanier; i++) {
         .addEventListener("click", (e) => {
             e.preventDefault();
             let changeQuantity = e.target.value;
-            console.log(changeQuantity);
+
             panier = panier.filter(
                 (e) =>
                 (e.quantity =
@@ -144,12 +158,13 @@ document
         } else {
             let panier = getPanier();
             let productId = [];
+            let panierConfirmation = getPanierConfirmation();
             panier.forEach((element) => {
                 productId.push(element._id);
             });
-            const contactProducts = {
+            const contactProduct = {
                 contact: {
-                    fistName: document.getElementById("firstName").value,
+                    firstName: document.getElementById("firstName").value,
                     lastName: document.getElementById("lastName").value,
                     address: document.getElementById("address").value,
                     city: document.getElementById("city").value,
@@ -157,12 +172,34 @@ document
                 },
                 products: productId,
             };
+            ////////////////////////////////////////////FETCH POST ///////////////////////////////////////////////
 
+            const contactProducts = JSON.stringify(contactProduct);
             fetch("http://localhost:3000/api/products/order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(contactProducts),
-            });
-            // document.location.href = "../html/confirmation.html";
+                    method: "POST",
+                    body: contactProducts,
+                    headers: { "Content-Type": "application/json" },
+                })
+                .then((res) => res.json())
+                .then((secondReponse) => {
+                    let reponsePromise = secondReponse;
+                    const orderConfirmation = {
+                        order: reponsePromise.orderId,
+                        // price: priceTotal,
+                        // customer: reponsePromise.contact,
+                        // products: reponsePromise.products,
+                    };
+                    console.log(reponsePromise);
+                    console.log(orderConfirmation);
+                    const orderAll = JSON.stringify(orderConfirmation);
+
+                    function saveConfirmation() {
+                        localStorage.setItem("Information", orderAll);
+                    }
+                    saveConfirmation();
+                    buildConfirmation(informations);
+                });
+            localStorage.removeItem("panier");
+            document.location.href = "../html/confirmation.html";
         }
     });
