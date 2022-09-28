@@ -77,7 +77,19 @@ function addPanier(product, color, quantity) {
 }
 
 buttonPanier.addEventListener("click", () => {
-    addPanier(product, color, updateQuantity);
+    if (color == "" && updateQuantity == "") {
+        color;
+        updateQuantity;
+        alert("Veuillez choisir une couleur et une quantité");
+    } else if (color == "") {
+        color;
+        alert("Veuillez choisir une couleur");
+    } else if (updateQuantity == "") {
+        updateQuantity;
+        alert("Veuillez choisir une quantité");
+    } else {
+        addPanier(product, color, updateQuantity);
+    }
 });
 
 var colors = document.getElementById("colors");
