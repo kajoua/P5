@@ -1,6 +1,6 @@
+///Récupération de la fonction getPanier pour traiter les données, doit pouvoir avoir un tableau vide si push
 let panier = getPanier();
 let priceTotal = totalPrice();
-let panierConfirmation = getPanierConfirmation();
 
 function getPanier() {
     let panier = localStorage.getItem("panier");
@@ -11,18 +11,6 @@ function getPanier() {
     }
 }
 
-function savePanier(panierConfirmation) {
-    localStorage.setItem("commande", JSON.stringify(panierConfirmation));
-}
-
-function getPanierConfirmation() {
-    let panierConfirmation = localStorage.getItem("commande");
-    if (panierConfirmation == null) {
-        return [];
-    } else {
-        return JSON.parse(panierConfirmation);
-    }
-}
 const numberItemsPanier = panier.length;
 for (let i = 0; i < numberItemsPanier; i++) {
     const htmlLignePanier = () => {
@@ -67,15 +55,11 @@ for (let i = 0; i < numberItemsPanier; i++) {
         inputQuantity.value = panier[i].quantity;
         inputQuantity.addEventListener("click", (e) => {
             e.preventDefault();
-            let changeQuantity = e.target.value;
 
-            panier = panier.filter(
-                (e) =>
-                (e.quantity =
-                    changeQuantity ||
-                    e.id != panier[i]._id ||
-                    e.color != panier[i].color)
+            let panierItem = panier.find(
+                (e) => e._id == panier[i]._id && e.color == panier[i].color
             );
+            panierItem.quantity = e.target.value;
             savePanier(panier);
             htmlTotalPrice.innerHTML = totalPrice();
             htmlTotalQuantity.innerHTML = totalQuantity();
@@ -143,21 +127,30 @@ function totalPrice() {
 let htmlTotalPrice = document.getElementById("totalPrice");
 htmlTotalPrice.innerHTML += totalPrice();
 
-// FORMULAIRE
+///////////////////// FORMULAIRE////////////////////////////////////////////////////
+////Const pour appeler tout les inputs du formulaire avec getElementById///
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
 const address = document.getElementById("address");
 const city = document.getElementById("city");
 const email = document.getElementById("email");
+///Const pour appeler tout les messages d'erreurs du formulaire avec getElementById////
 const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
 const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
 const addressErrorMsg = document.getElementById("addressErrorMsg");
 const cityErrorMsg = document.getElementById("cityErrorMsg");
 const emailErrorMsg = document.getElementById("emailErrorMsg");
+////déclaration de variable sans valeurs, des valeurs avenir qui seront remplis par le client///
 let valueFirstName, valueLastName, valueAddress, valueCity, valueEmail;
+
+////addEventListener sur INPUT de first name////
 firstName.addEventListener("input", function(e) {
+    // on appelle la variable
     valueFirstName;
+    ////value.lenght pour la condition de la longueur du mot
+    //// utilisation de InnerHTML pour faire apparaitre la condition si celle ci n'est pas respecté
     if (e.target.value.length == 0) {
+        /// value = null =>éviter qu'elle soit envoyé dans le local storage si conditon pas respecté
         valueFirstName = null;
         firstNameErrorMsg.innerHTML = "";
     } else if (e.target.value.length < 2) {
@@ -167,6 +160,8 @@ firstName.addEventListener("input", function(e) {
         firstNameErrorMsg.innerHTML = `Le prénom est trop long `;
         valueFirstName = null;
     }
+    ///value.match si ca concorde avec le Regex énoncé
+    ///REGEX A à Z , a à z , d'une longueur de 2 à 25
     if (e.target.value.match(/^[a-z A-Z]{2,25}$/)) {
         firstNameErrorMsg.innerHTML = "";
         valueFirstName = e.target.value;
@@ -271,25 +266,35 @@ email.addEventListener("input", function(e) {
     }
 });
 ////////////////////////////////////////////clickkkk form/////////////////////////////////////////////////
+//Récupération du formulaire & addEventListener au submit
 document
     .querySelector(".cart__order__form")
     .addEventListener("submit", function(e) {
+        ///Blocage du comportement par défaut du submit
         e.preventDefault();
+        ///Condition si le panier est vide, une alerte est crée pour remplir le panier
         if (panier == 0) {
             panier;
             alert("Veuillez remplir votre panier");
-        } else if (
+        }
+        ////// Si les values sont trues alors :
+        else if (
             valueFirstName &&
             valueLastName &&
             valueAddress &&
             valueCity &&
             valueEmail
         ) {
+            ////on récupère la variable getPanier pour pouvoir travailler sur les elements du panier
             let panier = getPanier();
+            /// variable vide pour pouvoir y insérer les ID
             let productId = [];
+            /// On récupèration des ID sélectionner avec forEach, méthode push() pour ajouter les valeurs au tableau
             panier.forEach((element) => {
                 productId.push(element._id);
             });
+            ///Création d'une constante où on y intègre les values du formulaires
+            ///et le products comme stipuler dans ../back/controllers/product.js
             const contactProduct = {
                 contact: {
                     firstName: document.getElementById("firstName").value,
@@ -300,7 +305,9 @@ document
                 },
                 products: productId,
             };
+            ///Sérialisation de l'ensemble pour que ce soit lue par l'API
             const contactProducts = JSON.stringify(contactProduct);
+            /// Création d'une requête POST pour obtenir le orderId de contactProducts
             fetch("http://localhost:3000/api/products/order", {
                     method: "POST",
                     body: contactProducts,
@@ -308,14 +315,19 @@ document
                 })
                 .then((res) => res.json())
                 .then((secondReponse) => {
+                    //Récupération de la réponse dans reponsePromise
                     let reponsePromise = secondReponse;
+                    ///Récupération de l'orderId uniquement
                     const orderConfirmation = {
                         order: reponsePromise.orderId,
                     };
+                    ///suppression de l'intégralité du panier dans le localStorage avec removeItem
                     localStorage.removeItem("panier");
+                    ///Rerige vers de la page de confirmation auxquel nous rajoutons avec le innerHTML le orderId
                     document.location.href =
                         "../html/confirmation.html?id=" + orderConfirmation.order;
                 });
+            ///Condition si le formulaire n'est pas rempli correction, envoi un message d'alerte
         } else {
             alert("Veuillez remplir le formulaire correctement");
         }
