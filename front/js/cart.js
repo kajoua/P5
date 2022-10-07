@@ -9,14 +9,51 @@ function getPanier() {
     } else {
         return JSON.parse(panier);
     }
+} // savePanier à nouveau pour enregistrer dans le local storage avec sérialisation en chaine de caractère sinon objet
+function savePanier(panier) {
+    localStorage.setItem("panier", JSON.stringify(panier));
+}
+///création de fonction pour le total Quantity
+function totalQuantity() {
+    let panier = getPanier();
+    let number = 0;
+    for (let q of panier) {
+        number += parseInt(q.quantity);
+    }
+    return number;
 }
 
+let htmlTotalQuantity = document.getElementById("totalQuantity");
+htmlTotalQuantity.innerHTML += totalQuantity();
+// Création de fonction pour le prix total
+function totalPrice() {
+    //Récupération du panier en JSON.parse
+    let panier = getPanier();
+    //Variable prix qui correspond à 0
+    let price = 0;
+    //Création d'une boucle dans Panier
+    for (let p of panier) {
+        //  0 += quantité dans panier * prix dans panier (parseInt pour pouvoir être calculé)
+        price += parseInt(p.quantity) * parseInt(p.price);
+    }
+    ///retourne le prix total
+    return price;
+}
+// Intégration du prix total avec le InnerHMTL dans le totalPrice avec le getElementById
+let htmlTotalPrice = document.getElementById("totalPrice");
+htmlTotalPrice.innerHTML += totalPrice();
+/// Création d'une constance pour retourner la longueur du panier
 const numberItemsPanier = panier.length;
+/// Boucle for pour que l'élement i soit répéter autant de fois qu'il y a de produit dans le panier i+1
 for (let i = 0; i < numberItemsPanier; i++) {
     const htmlLignePanier = () => {
+        //// Récupération du html avec le getElementById
         let cartItemSection = document.getElementById("cart__items");
+        ///Création de l'article avec le createElement
         let article = document.createElement("article");
+        /// Rajout de attributs
         article.classList = "cart__item";
+        ///Attribut data pour personnaliser les données
         article.dataset.id = panier[i]._id;
         article.dataset.color = panier[i].color;
 
@@ -53,14 +90,19 @@ for (let i = 0; i < numberItemsPanier; i++) {
         inputQuantity.min = "1";
         inputQuantity.max = "100";
         inputQuantity.value = panier[i].quantity;
+        //Add eventListener au clic de quantity
         inputQuantity.addEventListener("click", (e) => {
+            ///Blocage du comportement par défaut du clic
             e.preventDefault();
-
+            //Création d'une variable pour trouver, find(), l'element qui correspond à l'ID du panier et la couleur du panier
             let panierItem = panier.find(
                 (e) => e._id == panier[i]._id && e.color == panier[i].color
             );
+            //Association de la e.target.value à panierItem.quantity
             panierItem.quantity = e.target.value;
+            // Enregistrement de la nouvelle donnée dans le localStorage
             savePanier(panier);
+            //Puis modification des totaux dans le DOM grâce aux innerHTML en récupérant les fontions
             htmlTotalPrice.innerHTML = totalPrice();
             htmlTotalQuantity.innerHTML = totalQuantity();
         });
@@ -71,17 +113,23 @@ for (let i = 0; i < numberItemsPanier; i++) {
         let pDelete = document.createElement("p");
         pDelete.classList = "deleteItem";
         pDelete.textContent = " Supprimer";
+        //Add eventListener au clic de Supprimer
         pDelete.addEventListener("click", (e) => {
+            ///Blocage du comportement par défaut du clic
             e.preventDefault();
+            //Création d'une variable pour filtrer, filter(), l'element qui correspond pas à l'ID du panier et la couleur du panier
             panier = panier.filter(
                 (c) => c._id != panier[i]._id || c.color != panier[i].color
             );
+            // Suppression de l'article dans le local storage
             article.remove();
+            // Enregistrement de la nouvelle donnée dans le localStorage
             savePanier(panier);
+            //Puis modification des totaux dans le DOM grâce aux innerHTML en récupérant les fontions
             htmlTotalPrice.innerHTML = totalPrice();
             htmlTotalQuantity.innerHTML = totalQuantity();
         });
-
+        /// AppendChild pour créer / emboiter correctement les balises
         cartItemSection.appendChild(article);
         article.appendChild(cartItemImg);
         cartItemImg.appendChild(image);
@@ -97,35 +145,9 @@ for (let i = 0; i < numberItemsPanier; i++) {
         cartItemContentSettings.appendChild(cartItemContentSettingsDelete);
         cartItemContentSettingsDelete.appendChild(pDelete);
     };
+    // Appel de la fonction
     htmlLignePanier();
 }
-
-function savePanier(panier) {
-    localStorage.setItem("panier", JSON.stringify(panier));
-}
-
-function totalQuantity() {
-    let panier = getPanier();
-    let number = 0;
-    for (let q of panier) {
-        number += parseInt(q.quantity);
-    }
-    return number;
-}
-
-let htmlTotalQuantity = document.getElementById("totalQuantity");
-htmlTotalQuantity.innerHTML += totalQuantity();
-
-function totalPrice() {
-    let panier = getPanier();
-    let price = 0;
-    for (let p of panier) {
-        price += parseInt(p.quantity) * parseInt(p.price);
-    }
-    return price;
-}
-let htmlTotalPrice = document.getElementById("totalPrice");
-htmlTotalPrice.innerHTML += totalPrice();
 
 ///////////////////// FORMULAIRE////////////////////////////////////////////////////
 ////Const pour appeler tout les inputs du formulaire avec getElementById///
